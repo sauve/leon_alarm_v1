@@ -75,7 +75,7 @@ byte setalarmhour, setalarmminute;
 byte setday, setmonth, setyear;
 
 
-// Variables pour 
+// Variables de statut courant
 int etat = MODE_HEURE;
 int sousetat = AFFICHE_HEURE;
 int actionaffichage = 0;
@@ -99,8 +99,12 @@ uint8_t btnchanged;
 
 
 // variable pour parametre usager
-int ledbrightness;
-int alarmsound;
+int param_ledbrightness;
+int param_alarmsound;
+int param_fmvolume;
+int param_snooze_delais;
+
+// hum, combien de poste max en mémoire ?
 
 
 void setup() {
@@ -123,10 +127,10 @@ void setup() {
   analogWrite(SPEAKER_PIN, 0);
 
 
-  // Start the I2C interface
+  // Initialise l'interface I2C
 	Wire.begin();
  
-	// Start the serial interface
+	// Initialise la communication série
 	Serial.begin(57600);
 
   display.setBrightness(0x0f);
@@ -152,6 +156,14 @@ void updateButtons()
   {
     btnpressed += BTN_MOINS;
   }
+  if ( digitalRead(BTN_SNOOZE_PIN) == 0 )
+  {
+    btnpressed += BTN_SNOOZE;
+  }
+  if ( digitalRead(BTN_STOP_PIN) == 0 )
+  {
+    btnpressed += BTN_STOP;
+  }
   // update les inputs
   btnchanged = btnpressed ^ btnlastpressed;
 }
@@ -166,7 +178,7 @@ bool stillPressed( uint8_t button)
   return ((btnpressed & ~btnchanged) & button ) != 0;
 }
 
-void AfficherHeure()
+void led_AfficherHeure()
 {
   // aller lire l'heure sur le RTC
   byte heure = myRTC.getHour(h12Flag, pmFlag);
@@ -197,13 +209,13 @@ void AfficherHeure()
 }
 
 
-void AfficherSeconde()
+void led_AfficherSeconde()
 {
   byte seconde = myRTC.getSecond();
   display.showNumberDec(seconde, true);
 }
 
-void AfficherDate()
+void led_AfficherDate()
 {
   byte mois = myRTC.getMonth(century);
   byte jour = myRTC.getDate();
@@ -211,20 +223,20 @@ void AfficherDate()
   display.showNumberDec(jour, false, 2, 2);
 }
 
-void AfficherAnnee()
+void led_AfficherAnnee()
 {
   int annee = myRTC.getYear();
   display.showNumberDec(annee, false);
 }
 
-void AfficherAlarm1()
+void led_AfficherAlarm1()
 {
   myRTC.getA1Time(alarmDay, alarmHour, alarmMinute, alarmSecond, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
   display.showNumberDec(alarmHour, false, 2, 0);
   display.showNumberDec(alarmMinute, false, 2, 2);
 }
 
-void AfficherAlarm2()
+void led_AfficherAlarm2()
 {
   myRTC.getA2Time(alarmDay, alarmHour, alarmMinute, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
   display.showNumberDec(alarmHour, false, 2, 0);
@@ -287,7 +299,7 @@ void GestionModeHeure()
       {
         etat = AFFICHE_HEURE;
       }
-      AfficherHeure();
+      led_AfficherHeure();
       break;
     case CONFIG_HEURE:
       // affiche heure set en flash
@@ -309,7 +321,7 @@ void GestionModeHeure()
       {
         etat = AFFICHE_HEURE;
       }
-      AfficherSeconde();
+      led_AfficherSeconde();
       break;
     case CONFIG_MINUTE:
       // affiche minute set en flash
@@ -331,7 +343,7 @@ void GestionModeHeure()
       {
         etat = AFFICHE_HEURE;
       }
-      AfficherDate();
+      led_AfficherDate();
       break;
     case CONFIG_CONFIRM_HEURE:
       if ( justPressed(BTN_CONF))
@@ -343,7 +355,7 @@ void GestionModeHeure()
       {
         etat = AFFICHE_HEURE;
       }
-      AfficherAnnee();
+      led_AfficherAnnee();
       break;
   }
 }
@@ -362,6 +374,8 @@ void PlayAlarmSound()
 
 
 //// Affichage sur ecran oled
+void oled_affiche_boot()
+{}
 
 
 void oled_Affiche_heure()
@@ -378,7 +392,9 @@ void oled_affiche_etat()
   // si alarm a on
   // si sur snooze
   // si ecoute radio
-  //
+  // volume radio
+  // am ou pm
+  // affiche temperature
 }
 
 

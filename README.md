@@ -17,9 +17,13 @@ Liste des composants connectes
 ## Fonctionnalites
 
 + Afffiche et configurer l'heure
+    + Affiche en digital ou avec des aiguille style horloge
 + Afficher et configurer la date
+    + ecrire le nom du mois et jour
 + Afficher et configuer une alarme
 + Ecouter la radio FM
+  + Seek pour trouver le prochain poste
+  + Mettre en mémoire le poste
 + Chronometre
 + 
 
@@ -29,3 +33,4 @@ Liste des composants connectes
 + Delais lors d'un snooze
 + Affichage 24h ou AM/PM
 + Station FM prefere
++ son pour l'alarme
