@@ -20,3 +20,12 @@ Liste des composants connectes
 + Afficher et configurer la date
 + Afficher et configuer une alarme
 + Ecouter la radio FM
++ Chronometre
++ 
+
+## Elements configurable
+
++ Luminosite de l'affichage 7 segment
++ Delais lors d'un snooze
++ Affichage 24h ou AM/PM
++ Station FM prefere

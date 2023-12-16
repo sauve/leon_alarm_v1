@@ -361,6 +361,27 @@ void PlayAlarmSound()
 }
 
 
+//// Affichage sur ecran oled
+
+
+void oled_Affiche_heure()
+{}
+
+void oled_affiche_date()
+{}
+
+void oled_affiche_horloge()
+{}
+
+void oled_affiche_etat()
+{
+  // si alarm a on
+  // si sur snooze
+  // si ecoute radio
+  //
+}
+
+
 // methode appeler constamment
 void loop() {
   
