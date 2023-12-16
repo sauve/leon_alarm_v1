@@ -14,3 +14,9 @@ Liste des composants connectes
 + Arduino Micro 
 + LED ( Alarm, PM )
 
+## Fonctionnalites
+
++ Afffiche et configurer l'heure
++ Afficher et configurer la date
++ Afficher et configuer une alarme
++ Ecouter la radio FM
