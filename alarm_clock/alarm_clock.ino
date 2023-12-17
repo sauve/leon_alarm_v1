@@ -57,6 +57,26 @@ enum ETAT_HEURE {
   CONFIG_CONFIRM_HEURE
 };
 
+enum ETAT_DATE {
+  DATE_AFFICHE_DATE = 0,
+  DATE_CONFIG_DATE,
+  DATE_CONFIG_MOIS,
+  DATE_CONFIG_ANNEE,
+  DATE_CONFIG_CONFIRM_DATE
+};
+
+enum ETAT_ALARM {
+  ALARM_AFFICHE_ALARM = 0,
+  ALARM_CONFIG_ALARM,
+  ALARM_CONFIG_MINUTE,
+  ALARM_CONFIG_CONFIRM_ALARM
+};
+
+enum ETAT_RADIO {
+  RADIO_AFFICHE_RADIO = 0,
+  RADIO_CONFIG_CONFIRM_RADIO
+};
+
 enum ETAT_CRONO {
   CHRONO_DEPART = 0,
   CHRONO_CHRONO,
@@ -80,7 +100,7 @@ byte setalarmhour, setalarmminute;
 byte setday, setmonth, setyear;
 
 // etat actuel des senseur, alarm, horloge et radio
-byte curheure, curminute, curseconde, curampm;
+byte curheure, curminute, curseconde;
 byte curday, curmonth, curyear, curdow;
 bool curampm, cur24h, curalarmon, curradio, cursnooeze;
 byte curtemp;
@@ -489,10 +509,10 @@ void GestionModeDate()
   rtc_lire_date();
   switch(sousetat)
   {
-    case AFFICHE_DATE:
+    case DATE_AFFICHE_DATE:
       if ( justPressed(BTN_CONF))
       {
-        sousetat = CONFIG_DATE;
+        //sousetat = CONFIG_DATE;
         // set les variable set pour l'heure et minute
       }
       else if (justPressed(BTN_PLUS))
@@ -507,6 +527,7 @@ void GestionModeDate()
       oled_affiche_etat();
       oled_affiche_date();
       break;
+    /*
     case CONFIG_DATE:
       // affiche heure set en flash
       // plus et moins selon le AMPM ou 24h
@@ -541,6 +562,7 @@ void GestionModeDate()
       }
       led_AfficherAnnee();
       break;
+      */
   }
 }
 
@@ -548,10 +570,10 @@ void GestionModeAlarme()
 {
   switch(sousetat)
   {
-    case AFFICHE_ALARM:
+    case ALARM_AFFICHE_ALARM:
       if ( justPressed(BTN_CONF))
       {
-        sousetat = CONFIG_ALARM;
+        //sousetat = CONFIG_ALARM;
         // set les variable set pour l'heure et minute
       }
       else if (justPressed(BTN_PLUS))
@@ -564,6 +586,7 @@ void GestionModeAlarme()
       }
       led_AfficherAlarm1();
       break;
+    /*
     case CONFIG_ALARM:
       // affiche heure set en flash
       // plus et moins selon le AMPM ou 24h
@@ -598,6 +621,7 @@ void GestionModeAlarme()
       }
       led_AfficherAnnee();
       break;
+      */
   }
 }
 
@@ -605,10 +629,10 @@ void GestionModeRadio()
 {
   switch(sousetat)
   {
-    case AFFICHE_RADIO:
+    case RADIO_AFFICHE_RADIO:
       if ( justPressed(BTN_CONF))
       {
-        sousetat = CONFIG_RADIO;
+        //sousetat = CONFIG_RADIO;
         // set les variable set pour l'heure et minute
       }
       else if (justPressed(BTN_PLUS))
@@ -621,6 +645,7 @@ void GestionModeRadio()
       }
       led_AfficherAlarm1();
       break;
+    /*
     case CONFIG_RADIO:
       // affiche heure set en flash
       // plus et moins selon le AMPM ou 24h
@@ -655,6 +680,7 @@ void GestionModeRadio()
       }
       led_AfficherAnnee();
       break;
+      */
   }
 }
 
