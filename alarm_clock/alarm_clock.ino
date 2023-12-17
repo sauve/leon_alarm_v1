@@ -45,6 +45,7 @@ enum ETAT_PRINCIPAL {
   MODE_ALARM1,
   MODE_ALARM2,
   MODE_CHRONO,
+  MODE_RADIO
 };
 
 enum ETAT_HEURE {
@@ -244,6 +245,37 @@ void led_AfficherAlarm2()
 }
 
 
+//// Affichage sur ecran oled
+void oled_affiche_boot()
+{}
+
+
+void oled_Affiche_heure()
+{}
+
+void oled_affiche_date()
+{}
+
+void oled_affiche_radio()
+{}
+
+void oled_affiche_alarme()
+{}
+
+void oled_affiche_horloge()
+{}
+
+void oled_affiche_etat()
+{
+  // si alarm a on
+  // si sur snooze
+  // si ecoute radio
+  // volume radio
+  // am ou pm
+  // affiche temperature
+}
+
+
 // Code gestion des etats
 void HandleHorloge()
 {
@@ -360,6 +392,177 @@ void GestionModeHeure()
   }
 }
 
+void GestionModeDate()
+{
+  switch(sousetat)
+  {
+    case AFFICHE_DATE:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_DATE;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_DATE;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_DATE;
+      }
+      led_AfficherDate();
+      break;
+    case CONFIG_DATE:
+      // affiche heure set en flash
+      // plus et moins selon le AMPM ou 24h
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_CONFIRM_DATE;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_DATE;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_DATE;
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_DATE;
+      }
+      led_AfficherDate();
+      break;
+    case CONFIG_CONFIRM_DATE:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = AFFICHE_DATE;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_DATE;
+      }
+      led_AfficherAnnee();
+      break;
+  }
+}
+
+void GestionModeAlarme()
+{
+  switch(sousetat)
+  {
+    case AFFICHE_ALARM:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_ALARM;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      led_AfficherAlarm1();
+      break;
+    case CONFIG_ALARM:
+      // affiche heure set en flash
+      // plus et moins selon le AMPM ou 24h
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_CONFIRM_ALARM;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      led_AfficherAlarm1();
+      break;
+    case CONFIG_CONFIRM_ALARM:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = AFFICHE_ALARM;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_ALARM;
+      }
+      led_AfficherAnnee();
+      break;
+  }
+}
+
+void GestionModeRadio()
+{
+  switch(sousetat)
+  {
+    case AFFICHE_RADIO:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_RADIO;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      led_AfficherAlarm1();
+      break;
+    case CONFIG_RADIO:
+      // affiche heure set en flash
+      // plus et moins selon le AMPM ou 24h
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = CONFIG_CONFIRM_RADIO;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_PLUS))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      else if (justPressed(BTN_MOINS))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      led_AfficherAlarm1();
+      break;
+    case CONFIG_CONFIRM_RADIO:
+      if ( justPressed(BTN_CONF))
+      {
+        sousetat = AFFICHE_RADIO;
+        // set les variable set pour l'heure et minute
+      }
+      else if (justPressed(BTN_STOP))
+      {
+        etat = AFFICHE_RADIO;
+      }
+      led_AfficherAnnee();
+      break;
+  }
+}
+
 // Gestion des sons
 
 void StopSound()
@@ -373,29 +576,6 @@ void PlayAlarmSound()
 }
 
 
-//// Affichage sur ecran oled
-void oled_affiche_boot()
-{}
-
-
-void oled_Affiche_heure()
-{}
-
-void oled_affiche_date()
-{}
-
-void oled_affiche_horloge()
-{}
-
-void oled_affiche_etat()
-{
-  // si alarm a on
-  // si sur snooze
-  // si ecoute radio
-  // volume radio
-  // am ou pm
-  // affiche temperature
-}
 
 
 // methode appeler constamment
