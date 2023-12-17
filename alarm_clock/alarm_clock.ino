@@ -1,6 +1,8 @@
 #include <TM1637Display.h>
 #include <DS3231.h>
 #include <Wire.h>
+#include <ssd1306.h>
+#include <RDA5807.h>
 #include <inttypes.h>
 
 // Todo
@@ -65,6 +67,8 @@ enum ETAT_CRONO {
 
 TM1637Display display(CLK, DIO);
 DS3231 myRTC;
+RDA5807 rx;
+
 bool century = false;
 bool h12Flag;
 bool pmFlag;
@@ -75,6 +79,13 @@ byte sethour, setminute, setseconde;
 byte setalarmhour, setalarmminute;
 byte setday, setmonth, setyear;
 
+// etat actuel des senseur, alarm, horloge et radio
+byte curheure, curminute, curseconde, curampm;
+byte curday, curmonth, curyear, curdow;
+bool curampm, cur24h, curalarmon, curradio, cursnooeze;
+byte curtemp;
+
+uint16_t cur_fmfrequency;
 
 // Variables de statut courant
 int etat = MODE_HEURE;
@@ -134,9 +145,19 @@ void setup() {
 	// Initialise la communication série
 	Serial.begin(57600);
 
+  // Initialise le module radio
+  rx.setup();
+  rx.setVolume(6);
+  rx.setMono(true);
+
   display.setBrightness(0x0f);
   int8_t data[] = { 0xff, 0xff, 0xff, 0xff };
   display.setSegments(data);
+
+  // initialise l'écran oled
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_128x64_i2c_init();
+  ssd1306_clearScreen();
 }
 
 void updateButtons()
@@ -178,6 +199,36 @@ bool stillPressed( uint8_t button)
 {
   return ((btnpressed & ~btnchanged) & button ) != 0;
 }
+
+
+// methode pour la gestion du module RTC
+void rtc_lire_heure()
+{
+  // aller lire l'heure sur le RTC
+  curheure = myRTC.getHour(h12Flag, pmFlag);
+  curminute = myRTC.getMinute();
+  curseconde = myRTC.getSecond();
+}
+
+void rtc_lire_date()
+{
+  // aller lire l'heure sur le RTC
+  curmonth = myRTC.getMonth(century);
+  curday = myRTC.getDate();
+  curyear = myRTC.getYear();
+}
+
+void rtc_lire_alarm1()
+{
+  myRTC.getA1Time(alarmDay, alarmHour, alarmMinute, alarmSecond, alarmBits, alarmDy, alarmH12Flag, alarmPmFlag);
+}
+
+void rtc_lire_temp()
+{
+  curtemp = myRTC.getTemperature();
+}
+
+
 
 void led_AfficherHeure()
 {
@@ -251,29 +302,66 @@ void oled_affiche_boot()
 
 
 void oled_Affiche_heure()
-{}
+{
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_printFixed(0,  32, "HH:MM ss", STYLE_NORMAL);
+}
 
 void oled_affiche_date()
-{}
+{
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_printFixed(0,  32, "dow, dd mmmYYYY", STYLE_NORMAL);
+}
 
 void oled_affiche_radio()
-{}
+{
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_printFixed(0,  32, "dow, dd mmm YYYY", STYLE_NORMAL);
+}
 
 void oled_affiche_alarme()
-{}
+{
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_printFixed(0,  32, "on, HH:MM", STYLE_NORMAL);
+}
 
 void oled_affiche_horloge()
-{}
+{
+  ssd1306_drawLine(64, 32, 64, 24);
+  ssd1306_drawLine(64, 32, 92, 32);
+  ssd1306_drawLine(64, 32, 32, 44);
+}
 
+
+void oled_affiche_statut()
+{
+  ssd1306_drawLine(0,64 - 9, ssd1306_displayWidth() -1, 64 - 9);
+  ssd1306_printFixed(0,  64 - 8, "Debug curent status", STYLE_NORMAL);
+}
+
+// Affiche l'etat courant
+// Resposnsable d'efeacer l'ecran et d'afficher l'etat courant
+// Doit etre appeler avant tout autre affichage a moin de vouloir controler l'ensemble de l'ecran
 void oled_affiche_etat()
 {
+  ssd1306_setFixedFont(ssd1306xled_font6x8);
+  ssd1306_clearScreen();
   // si alarm a on
+  ssd1306_printFixed(0,  8, "A", STYLE_NORMAL);
   // si sur snooze
+  ssd1306_printFixed(8,  8, "S", STYLE_NORMAL);
   // si ecoute radio
+  ssd1306_printFixed(16,  8, "FM", STYLE_NORMAL);
   // volume radio
+  ssd1306_printFixed(32,  8, "V", STYLE_NORMAL);
   // am ou pm
+  ssd1306_printFixed(48,  8, "AM", STYLE_NORMAL);
   // affiche temperature
+  ssd1306_printFixed(112,  8, "V", STYLE_NORMAL);
+  ssd1306_drawLine(0,16, ssd1306_displayWidth() -1, 16);
 }
+
+
 
 
 // Code gestion des etats
@@ -315,6 +403,7 @@ void HandleAlarme()
 
 void GestionModeHeure()
   {
+  rtc_lire_heure();
   switch(sousetat)
   {
     case AFFICHE_HEURE:
@@ -325,13 +414,16 @@ void GestionModeHeure()
       }
       else if (justPressed(BTN_PLUS))
       {
-        etat = AFFICHE_HEURE;
+        etat = MODE_DATE;
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = AFFICHE_HEURE;
+        etat = MODE_RADIO;
       }
       led_AfficherHeure();
+      oled_affiche_etat();
+      oled_Affiche_heure();
+
       break;
     case CONFIG_HEURE:
       // affiche heure set en flash
@@ -394,6 +486,7 @@ void GestionModeHeure()
 
 void GestionModeDate()
 {
+  rtc_lire_date();
   switch(sousetat)
   {
     case AFFICHE_DATE:
@@ -404,13 +497,15 @@ void GestionModeDate()
       }
       else if (justPressed(BTN_PLUS))
       {
-        etat = AFFICHE_DATE;
+        etat = MODE_HEURE;
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = AFFICHE_DATE;
+        etat = MODE_ALARM1;
       }
       led_AfficherDate();
+      oled_affiche_etat();
+      oled_affiche_date();
       break;
     case CONFIG_DATE:
       // affiche heure set en flash
@@ -461,11 +556,11 @@ void GestionModeAlarme()
       }
       else if (justPressed(BTN_PLUS))
       {
-        etat = AFFICHE_ALARM;
+        etat = MODE_DATE;
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = AFFICHE_ALARM;
+        etat = MODE_RADIO;
       }
       led_AfficherAlarm1();
       break;
@@ -518,11 +613,11 @@ void GestionModeRadio()
       }
       else if (justPressed(BTN_PLUS))
       {
-        etat = AFFICHE_RADIO;
+        etat = MODE_RADIO;
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = AFFICHE_RADIO;
+        etat = MODE_HEURE;
       }
       led_AfficherAlarm1();
       break;
@@ -587,6 +682,15 @@ void loop() {
   {
     case MODE_HEURE:
       GestionModeHeure();
+      break;
+    case MODE_DATE:
+      GestionModeDate();
+      break;
+    case MODE_ALARM1:
+      GestionModeAlarme();
+      break;
+    case MODE_RADIO:
+      GestionModeRadio();
       break;
   }
 /*

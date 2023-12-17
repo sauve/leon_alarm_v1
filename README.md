@@ -14,6 +14,13 @@ Liste des composants connectes
 + Arduino Micro 
 + LED ( Alarm, PM )
 
+## Libraries utilisées
+
++ PUC2CHOSE pour RDA5807
++ ssd1306
++ TM1637
++ DS3231
+
 ## Fonctionnalites
 
 + Afffiche et configurer l'heure
