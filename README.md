@@ -9,14 +9,12 @@ Liste des composants connectes
 + RTC DS3231
 + 5 buttons
 + 1 speaker
-+ Recepteur FM 
 + Ecran OLED I2C 
 + Arduino Micro 
 + LED ( Alarm, PM )
 
 ## Libraries utilisées
 
-+ PUC2CHOSE pour RDA5807
 + ssd1306
 + TM1637
 + DS3231
@@ -28,9 +26,6 @@ Liste des composants connectes
 + Afficher et configurer la date
     + ecrire le nom du mois et jour
 + Afficher et configuer une alarme
-+ Ecouter la radio FM
-  + Seek pour trouver le prochain poste
-  + Mettre en mémoire le poste
 + Chronometre
 + 
 
@@ -39,5 +34,4 @@ Liste des composants connectes
 + Luminosite de l'affichage 7 segment
 + Delais lors d'un snooze
 + Affichage 24h ou AM/PM
-+ Station FM prefere
 + son pour l'alarme
