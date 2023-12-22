@@ -2,7 +2,6 @@
 #include <DS3231.h>
 #include <Wire.h>
 #include <ssd1306.h>
-#include <RDA5807.h>
 #include <inttypes.h>
 
 // Todo
@@ -46,8 +45,7 @@ enum ETAT_PRINCIPAL {
   MODE_DATE,
   MODE_ALARM1,
   MODE_ALARM2,
-  MODE_CHRONO,
-  MODE_RADIO
+  MODE_CHRONO
 };
 
 enum ETAT_HEURE {
@@ -72,11 +70,6 @@ enum ETAT_ALARM {
   ALARM_CONFIG_CONFIRM_ALARM
 };
 
-enum ETAT_RADIO {
-  RADIO_AFFICHE_RADIO = 0,
-  RADIO_CONFIG_CONFIRM_RADIO
-};
-
 enum ETAT_CRONO {
   CHRONO_DEPART = 0,
   CHRONO_CHRONO,
@@ -87,7 +80,7 @@ enum ETAT_CRONO {
 
 TM1637Display display(CLK, DIO);
 DS3231 myRTC;
-RDA5807 rx;
+
 
 bool century = false;
 bool h12Flag;
@@ -165,10 +158,6 @@ void setup() {
 	// Initialise la communication série
 	Serial.begin(57600);
 
-  // Initialise le module radio
-  rx.setup();
-  rx.setVolume(6);
-  rx.setMono(true);
 
   display.setBrightness(0x0f);
   int8_t data[] = { 0xff, 0xff, 0xff, 0xff };
@@ -438,7 +427,7 @@ void GestionModeHeure()
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = MODE_RADIO;
+        etat = MODE_ALARM1;
       }
       led_AfficherHeure();
       oled_affiche_etat();
@@ -582,7 +571,7 @@ void GestionModeAlarme()
       }
       else if (justPressed(BTN_MOINS))
       {
-        etat = MODE_RADIO;
+        etat = MODE_HEURE;
       }
       led_AfficherAlarm1();
       break;
@@ -625,65 +614,6 @@ void GestionModeAlarme()
   }
 }
 
-void GestionModeRadio()
-{
-  switch(sousetat)
-  {
-    case RADIO_AFFICHE_RADIO:
-      if ( justPressed(BTN_CONF))
-      {
-        //sousetat = CONFIG_RADIO;
-        // set les variable set pour l'heure et minute
-      }
-      else if (justPressed(BTN_PLUS))
-      {
-        etat = MODE_RADIO;
-      }
-      else if (justPressed(BTN_MOINS))
-      {
-        etat = MODE_HEURE;
-      }
-      led_AfficherAlarm1();
-      break;
-    /*
-    case CONFIG_RADIO:
-      // affiche heure set en flash
-      // plus et moins selon le AMPM ou 24h
-      if ( justPressed(BTN_CONF))
-      {
-        sousetat = CONFIG_CONFIRM_RADIO;
-        // set les variable set pour l'heure et minute
-      }
-      else if (justPressed(BTN_PLUS))
-      {
-        etat = AFFICHE_RADIO;
-      }
-      else if (justPressed(BTN_MOINS))
-      {
-        etat = AFFICHE_RADIO;
-      }
-      else if (justPressed(BTN_STOP))
-      {
-        etat = AFFICHE_RADIO;
-      }
-      led_AfficherAlarm1();
-      break;
-    case CONFIG_CONFIRM_RADIO:
-      if ( justPressed(BTN_CONF))
-      {
-        sousetat = AFFICHE_RADIO;
-        // set les variable set pour l'heure et minute
-      }
-      else if (justPressed(BTN_STOP))
-      {
-        etat = AFFICHE_RADIO;
-      }
-      led_AfficherAnnee();
-      break;
-      */
-  }
-}
-
 // Gestion des sons
 
 void StopSound()
@@ -714,9 +644,6 @@ void loop() {
       break;
     case MODE_ALARM1:
       GestionModeAlarme();
-      break;
-    case MODE_RADIO:
-      GestionModeRadio();
       break;
   }
 /*
