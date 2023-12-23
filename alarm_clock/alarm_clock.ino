@@ -111,7 +111,11 @@ int gestionEtatDelais = 0;
 int gestionEtatAffichage = 0;
 int gestionEtatSon = 0;
 
-// timer pour la gestion des etats
+// Variable sur chagement d'etat
+bool changementSurHeure = false;
+bool changementSurEtat = false;
+byte lastheure, lastminute, lastseconde;
+byte lastetat;
 
 
 // Variables pouir la gestion des boutons
@@ -207,6 +211,34 @@ bool justPressed( uint8_t button)
 bool stillPressed( uint8_t button)
 {
   return ((btnpressed & ~btnchanged) & button ) != 0;
+}
+
+
+bool updateChangement()
+{
+  changementSurHeure = false;
+  changementSurEtat = false;
+  if (lastheure != curheure)
+  {
+    changementSurHeure = true;
+    lastheure = curheure;
+  }
+  if (lastminute != curminute)
+  {
+    changementSurHeure = true;
+    lastminute = curminute;
+  }
+  if (lastseconde != curseconde)
+  {
+    changementSurHeure = true;
+    lastseconde = curseconde;
+  }
+  if (lastetat != etat)
+  {
+    changementSurEtat = true;
+    lastetat = etat;
+  }
+  return changementSurHeure || changementSurEtat;
 }
 
 
@@ -312,20 +344,16 @@ void oled_affiche_boot()
 
 void oled_Affiche_heure()
 {
-  ssd1306_setFixedFont(ssd1306xled_font6x8);
-  ssd1306_printFixed(0,  32, "HH:MM ss", STYLE_NORMAL);
+  ssd1306_setFixedFont(ssd1306xled_font8x16);
+  char buffstr[10];
+  sprint(buffstr, "%02d:%02d:%02d", curheure, curminute, curseconde);
+  ssd1306_printFixed(0,  32, buffstr, STYLE_NORMAL);
 }
 
 void oled_affiche_date()
 {
   ssd1306_setFixedFont(ssd1306xled_font6x8);
   ssd1306_printFixed(0,  32, "dow, dd mmmYYYY", STYLE_NORMAL);
-}
-
-void oled_affiche_radio()
-{
-  ssd1306_setFixedFont(ssd1306xled_font6x8);
-  ssd1306_printFixed(0,  32, "dow, dd mmm YYYY", STYLE_NORMAL);
 }
 
 void oled_affiche_alarme()
@@ -359,10 +387,7 @@ void oled_affiche_etat()
   ssd1306_printFixed(0,  8, "A", STYLE_NORMAL);
   // si sur snooze
   ssd1306_printFixed(8,  8, "S", STYLE_NORMAL);
-  // si ecoute radio
-  ssd1306_printFixed(16,  8, "FM", STYLE_NORMAL);
-  // volume radio
-  ssd1306_printFixed(32,  8, "V", STYLE_NORMAL);
+  // si oui, doit afficher le temps restant
   // am ou pm
   ssd1306_printFixed(48,  8, "AM", STYLE_NORMAL);
   // affiche temperature
@@ -429,10 +454,12 @@ void GestionModeHeure()
       {
         etat = MODE_ALARM1;
       }
-      led_AfficherHeure();
-      oled_affiche_etat();
-      oled_Affiche_heure();
-
+       if (updateChangement())
+      {
+        led_AfficherHeure();
+        oled_affiche_etat();
+        oled_Affiche_heure();
+      }
       break;
     case CONFIG_HEURE:
       // affiche heure set en flash
@@ -512,9 +539,12 @@ void GestionModeDate()
       {
         etat = MODE_ALARM1;
       }
-      led_AfficherDate();
-      oled_affiche_etat();
-      oled_affiche_date();
+      if (updateChangement())
+      {
+        led_AfficherDate();
+        oled_affiche_etat();
+        oled_affiche_date();
+      }
       break;
     /*
     case CONFIG_DATE:
@@ -573,7 +603,12 @@ void GestionModeAlarme()
       {
         etat = MODE_HEURE;
       }
-      led_AfficherAlarm1();
+      if (updateChangement())
+      {
+        led_AfficherAlarm1();
+        oled_affiche_etat();
+        oled_affiche_date();
+      }
       break;
     /*
     case CONFIG_ALARM:
