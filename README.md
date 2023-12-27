@@ -5,12 +5,12 @@ Code arduino pour reveil matin version 1
 
 Liste des composants connectes
 
-+ 4 digit 7 segments LED TM1637
++ 4 digit 7 segments TM1637
 + RTC DS3231
 + 5 buttons
 + 1 speaker
 + Ecran OLED I2C 
-+ Arduino Micro 
++ Arduino Nano 
 + LED ( Alarm, PM )
 
 ## Libraries utilisées

@@ -106,6 +106,10 @@ int sousetat = AFFICHE_HEURE;
 int actionaffichage = 0;
 int actionsonore = 0;
 
+bool inSnnoze = false;
+byte snnozeHeure = 0;
+byte snnozeMinute = 0;
+
 // delais pour la gestion des etats
 int gestionEtatDelais = 0;
 int gestionEtatAffichage = 0;
@@ -373,7 +377,7 @@ void oled_affiche_horloge()
 void oled_affiche_statut()
 {
   ssd1306_drawLine(0,64 - 9, ssd1306_displayWidth() -1, 64 - 9);
-  ssd1306_printFixed(0,  64 - 8, "Debug curent status", STYLE_NORMAL);
+  ssd1306_printFixed(0,  64 , "Debug curent status", STYLE_NORMAL);
 }
 
 // Affiche l'etat courant
@@ -393,6 +397,8 @@ void oled_affiche_etat()
   // affiche temperature
   ssd1306_printFixed(112,  8, "V", STYLE_NORMAL);
   ssd1306_drawLine(0,16, ssd1306_displayWidth() -1, 16);
+
+  oled_affiche_statut();
 }
 
 
